@@ -20,60 +20,77 @@ namespace WindowsFormsApplication2
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            try
+            if (Environment.GetCommandLineArgs()[1] == "-decryptfile")
             {
-                AppSqlite s = new AppSqlite(".", "master.db", APP_CONFIG.SECURITY.KEY_DB_DECRYPT_STR);
-                s.OpenDB(false);
-                string sql = "SELECT * FROM sqlite_master;";
-                SQLiteQuery sQLiteQuery = s.CreateOuery(sql);
-                List<string> list = new List<string>();
-                while (sQLiteQuery.Step())
+                try
                 {
-                    if (sQLiteQuery.GetString("type").Equals("table"))
-                    {
-                        string @string = sQLiteQuery.GetString("tbl_name");
-                        list.Add(@string);
-                    }
-                } //Get list of tables
-                sQLiteQuery.Release();
-                foreach (string s2 in list) //Use list of tables to do whatever; In this case, dumping all data
+                    string file = Environment.GetCommandLineArgs()[2];
+                    byte[] input = File.ReadAllBytes(file);
+                    byte[] output = UtilSecurity.DecryptionBytes(input, APP_CONFIG.SECURITY.RIJINDAEL_MANAGED);
+                    File.WriteAllBytes("decrypted-" + file, output);
+                }
+                catch
                 {
-                    if (File.Exists(s2 + ".txt"))
+                    Environment.Exit(1);
+                }
+            }
+            else
+            {
+                try
+                {
+                    AppSqlite s = new AppSqlite(".", "master.db", APP_CONFIG.SECURITY.KEY_DB_DECRYPT_STR);
+                    s.OpenDB(false);
+                    string sql = "SELECT * FROM sqlite_master;";
+                    SQLiteQuery sQLiteQuery = s.CreateOuery(sql);
+                    List<string> list = new List<string>();
+                    while (sQLiteQuery.Step())
                     {
-                        File.Delete(s2 + ".txt");
-                    }
-                    sql = "SELECT * FROM " + s2 + ";";
-                    sQLiteQuery = s.CreateOuery(sql);
-                    sQLiteQuery.Step();
-                    try
+                        if (sQLiteQuery.GetString("type").Equals("table"))
+                        {
+                            string @string = sQLiteQuery.GetString("tbl_name");
+                            list.Add(@string);
+                        }
+                    } //Get list of tables
+                    sQLiteQuery.Release();
+                    foreach (string s2 in list) //Use list of tables to do whatever; In this case, dumping all data
                     {
-                        foreach (string s4 in sQLiteQuery.Names)
+                        if (File.Exists(s2 + ".txt"))
                         {
-                            File.AppendAllText(s2 + ".txt", s4 + ",");
+                            File.Delete(s2 + ".txt");
                         }
-                        File.AppendAllText(s2 + ".txt", "\r\n");
-                        foreach (string s4 in sQLiteQuery.Names)
+                        sql = "SELECT * FROM " + s2 + ";";
+                        sQLiteQuery = s.CreateOuery(sql);
+                        sQLiteQuery.Step();
+                        try
                         {
-                            File.AppendAllText(s2 + ".txt", sQLiteQuery.GetString(s4) + ",");
-                        }
-                        File.AppendAllText(s2 + ".txt", "\r\n");
-                        while (sQLiteQuery.Step())
-                        {
+                            foreach (string s4 in sQLiteQuery.Names)
+                            {
+                                File.AppendAllText(s2 + ".txt", s4 + ",");
+                            }
+                            File.AppendAllText(s2 + ".txt", "\r\n");
                             foreach (string s4 in sQLiteQuery.Names)
                             {
                                 File.AppendAllText(s2 + ".txt", sQLiteQuery.GetString(s4) + ",");
                             }
                             File.AppendAllText(s2 + ".txt", "\r\n");
+                            while (sQLiteQuery.Step())
+                            {
+                                foreach (string s4 in sQLiteQuery.Names)
+                                {
+                                    File.AppendAllText(s2 + ".txt", sQLiteQuery.GetString(s4) + ",");
+                                }
+                                File.AppendAllText(s2 + ".txt", "\r\n");
+                            }
                         }
+                        catch
+                        { }
+                        sQLiteQuery.Release();
                     }
-                    catch
-                    { }
-                    sQLiteQuery.Release();
                 }
-            }
-            catch
-            {
-                Environment.Exit(1);
+                catch
+                {
+                    Environment.Exit(1);
+                }
             }
             Environment.Exit(0);
         }
