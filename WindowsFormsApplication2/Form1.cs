@@ -72,7 +72,7 @@ namespace WindowsFormsApplication2
                             foreach (string s4 in sQLiteQuery.Names)
                             {
                                 string s3 = sQLiteQuery.GetString(s4);
-                                s3.Replace("\n", "\\n");
+                                s3 = s3.Replace("\n", "\\n");
                                 File.AppendAllText(s2 + ".txt", s3 + ",");
                             }
                             File.AppendAllText(s2 + ".txt", "\r\n");
@@ -81,7 +81,7 @@ namespace WindowsFormsApplication2
                                 foreach (string s4 in sQLiteQuery.Names)
                                 {
                                     string s3 = sQLiteQuery.GetString(s4);
-                                    s3.Replace("\n", "\\n");
+                                    s3 = s3.Replace("\n", "\\n");
                                     File.AppendAllText(s2 + ".txt", s3 + ",");
                                 }
                                 File.AppendAllText(s2 + ".txt", "\r\n");
@@ -92,10 +92,7 @@ namespace WindowsFormsApplication2
                         sQLiteQuery.Release();
                     }
                 }
-                catch
-                {
-                    Environment.Exit(1);
-                }
+                catch { }
             }
             Environment.Exit(0);
         }
