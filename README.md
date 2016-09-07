@@ -6,3 +6,7 @@ Place alongside WindowsFormsApplication2.exe.
 Run.
 
 (Useful output not guaranteed)
+
+v2:
+Added file decryption feature.
+To use this, run via command line: WindowsFormsApplication2 -decryptfile filename
