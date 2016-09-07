@@ -20,13 +20,14 @@ namespace WindowsFormsApplication2
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            if (Environment.GetCommandLineArgs()[1] == "-decryptfile")
+            if (Environment.GetCommandLineArgs().Count() > 0 && Environment.GetCommandLineArgs()[1] == "-decryptfile")
             {
                 try
                 {
                     string file = Environment.GetCommandLineArgs()[2];
                     byte[] input = File.ReadAllBytes(file);
                     byte[] output = UtilSecurity.DecryptionBytes(input, APP_CONFIG.SECURITY.RIJINDAEL_MANAGED);
+                    file = Path.GetFileName(file);
                     File.WriteAllBytes("decrypted-" + file, output);
                 }
                 catch
