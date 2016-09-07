@@ -71,14 +71,18 @@ namespace WindowsFormsApplication2
                             File.AppendAllText(s2 + ".txt", "\r\n");
                             foreach (string s4 in sQLiteQuery.Names)
                             {
-                                File.AppendAllText(s2 + ".txt", sQLiteQuery.GetString(s4) + ",");
+                                string s3 = sQLiteQuery.GetString(s4);
+                                s3.Replace("\n", "\\n");
+                                File.AppendAllText(s2 + ".txt", s3 + ",");
                             }
                             File.AppendAllText(s2 + ".txt", "\r\n");
                             while (sQLiteQuery.Step())
                             {
                                 foreach (string s4 in sQLiteQuery.Names)
                                 {
-                                    File.AppendAllText(s2 + ".txt", sQLiteQuery.GetString(s4) + ",");
+                                    string s3 = sQLiteQuery.GetString(s4);
+                                    s3.Replace("\n", "\\n");
+                                    File.AppendAllText(s2 + ".txt", s3 + ",");
                                 }
                                 File.AppendAllText(s2 + ".txt", "\r\n");
                             }
