@@ -20,7 +20,7 @@ namespace WindowsFormsApplication2
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            if (Environment.GetCommandLineArgs().Count() > 0 && Environment.GetCommandLineArgs()[1] == "-decryptfile")
+            if (Environment.GetCommandLineArgs().Count() > 1 && Environment.GetCommandLineArgs()[1] == "-decryptfile")
             {
                 try
                 {
