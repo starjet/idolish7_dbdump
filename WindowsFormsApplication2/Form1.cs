@@ -20,6 +20,58 @@ namespace WindowsFormsApplication2
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            if (Environment.GetCommandLineArgs().Count() > 1 && Environment.GetCommandLineArgs()[1] == "-tempfolder")
+            {
+                try
+                {
+                    Directory.SetCurrentDirectory(".\\Temp");
+                    try
+                    {
+                        Directory.CreateDirectory("_db");
+                    }
+                    catch { }
+                    try
+                    {
+                        File.Copy(HashFilename("db\\resource.db", false), "_db\\resource.db", true);
+                    }
+                    catch
+                    {
+                        Environment.Exit(1);
+                    }
+                    try
+                    {
+                        File.Copy(HashFilename("db\\master.db", false), "_db\\master.db", true);
+                    }
+                    catch { }
+                    AppSqlite s = new AppSqlite("_db", "resource.db", APP_CONFIG.SECURITY.KEY_DB_DECRYPT_STR);
+                    s.OpenDB(false);
+                    string sql = "SELECT * FROM resource_file;";
+                    SQLiteQuery sQLiteQuery = s.CreateOuery(sql);
+                    while (sQLiteQuery.Step())
+                    {
+                        string fullpath = sQLiteQuery.GetString("file_name");
+                        string hashedfullpath = HashFilename(fullpath, false);
+                        fullpath = fullpath.Replace("/", "\\");
+                        hashedfullpath = hashedfullpath.Replace("/", "\\");
+                        try
+                        {
+                            if (File.Exists(hashedfullpath))
+                            {
+                                Directory.CreateDirectory("_" + Path.GetDirectoryName(fullpath));
+                            }
+                        }
+                        catch { }
+                        try
+                        {
+                            File.Copy(hashedfullpath, "_" + fullpath);
+                        }
+                        catch { }
+                    }
+                    Environment.Exit(0);
+                }
+                catch { }
+            }
+
             if (Environment.GetCommandLineArgs().Count() > 1 && Environment.GetCommandLineArgs()[1] == "-decryptfile")
             {
                 try
@@ -92,9 +144,24 @@ namespace WindowsFormsApplication2
                         sQLiteQuery.Release();
                     }
                 }
-                catch { }
+                catch
+                {
+                    Environment.Exit(1);
+                }
             }
             Environment.Exit(0);
+        }
+
+        public string HashFilename(string filePath, bool isHashed)
+        {
+            if (!isHashed)
+            {
+                string fileName = Path.GetFileName(filePath);
+                string directoryName = Path.GetDirectoryName(filePath);
+                directoryName = directoryName.Replace("\\", "/");
+                filePath = Util.GetMD5Value(directoryName + "kEfGhnNmeu4YYuhv") + "/" + Util.GetMD5Value(fileName + "kEfGhnNmeu4YYuhv");
+            }
+            return filePath;
         }
     }
 }
